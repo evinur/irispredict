@@ -26,8 +26,24 @@ y = df['species']
 scaler = MinMaxScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Split data menjadi train dan test
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+# Tambahkan selectbox untuk memilih rasio split di sidebar
+st.sidebar.title("Pengaturan")
+split_ratio = st.sidebar.selectbox(
+    'Pilih Rasio Train/Test Split:',
+    ('80/20', '70/30', '90/10'),
+    index=0  # Default ke 80/20
+)
+
+# Konversi rasio split ke test_size
+split_mapping = {
+    '80/20': 0.2,
+    '70/30': 0.3,
+    '90/10': 0.1
+}
+test_size = split_mapping[split_ratio]
+
+# Split data menjadi train dan test dengan rasio yang dipilih
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=test_size, random_state=42)
 
 # KNN
 knn = KNeighborsClassifier()
@@ -62,11 +78,14 @@ if tab1_button:
 elif tab2_button:
     st.session_state.tab = "Prediksi Bunga Iris"
 
-
 if st.session_state.tab == "Home":
     # Menampilkan aplikasi
     st.title('Aplikasi Prediksi Jenis Bunga Iris')
     st.write('Aplikasi ini menggunakan model Machine Learning, yaitu (K-Nearest Neighbor, Decission Tree dan Naive Bayes) untuk memprediksi jenis bunga iris berdasarkan fitur sepal_length, sepal_width, petal_length, dan petal_width.')
+    
+    # Menampilkan rasio split yang dipilih
+    st.write(f'Rasio Train/Test Split yang digunakan: {split_ratio}')
+    
     st.header('Data Bunga Iris')
     st.dataframe(df)
 
